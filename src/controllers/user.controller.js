@@ -151,8 +151,8 @@ const logoutUser = asyncHandler(async(req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: {
-                refreshToken: undefined
+            $unset: {
+                refreshToken: 1
             }
         },
         {
@@ -185,7 +185,7 @@ const refreshAccessToken = asyncHandler(async(req, res) => {
         throw new ApiError(401, "Unauthorized Error");
     }
 
-   try {
+    try {
         const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
 
         const user = await User.findById(decodedToken._id)
@@ -218,9 +218,9 @@ const refreshAccessToken = asyncHandler(async(req, res) => {
                 "Access Token Refreshed Successfully"
             )
         )
-   } catch (error) {    
-    throw new ApiError(401, error?.message || "Invalid Refresh Token" )
-   }
+    } catch (error) {    
+        throw new ApiError(401, error?.message || "Invalid Refresh Token" )
+    }
 
 })
 
