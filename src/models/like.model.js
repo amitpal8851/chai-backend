@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const likeSchema = new Schema({
     video: {
@@ -19,5 +20,16 @@ const likeSchema = new Schema({
     }
 },{timestamps:true});
 
+likeSchema.pre("save", function(next) {
+    const targets = [this.video, this.comment, this.tweet].filter(Boolean);
+
+    if (targets.length !== 1) {
+        return next(new Error("Like must belong to exactly one target"));
+    }
+
+    next();
+});
+
+likeSchema.plugin(mongooseAggregatePaginate);
 
 export const Like = mongoose.model("Like", likeSchema);
